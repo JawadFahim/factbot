@@ -29,23 +29,28 @@ def scrape_paragraphs():
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
-    response = requests.get(url, headers=headers, proxies={})
 
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+    while True:
+        response = requests.get(url, headers=headers, proxies={})
 
-        first_paragraph = soup.find('span', class_='td-sml-description')
-        first_source_link = soup.find('a', class_='button source')
-        first_image = soup.find('div', class_='td-item').find('img')
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-        paragraph_text = f"{first_paragraph.p.text.strip()}" if first_paragraph else "No paragraphs found on the page."
-        source_link_text = f"Source Link: {first_source_link['href']}" if first_source_link else "No source link found on the page."
-        image_src = f"{first_image['src']}" if first_image else None
+            first_paragraph = soup.find('span', class_='td-sml-description')
+            if first_paragraph and any(word in first_paragraph.p.text.lower() for word in ['hitler', 'murder','sex','rape','nazi','reich','gun','shoot','shooting']):
+                print("Found 'hitler' or 'murder' in the paragraph, retrying...")
+                continue  # Retry the scraping process
 
-        return paragraph_text, source_link_text, image_src
-    else:
-        return None, None, None
+            first_source_link = soup.find('a', class_='button source')
+            first_image = soup.find('div', class_='td-item').find('img')
 
+            paragraph_text = f"{first_paragraph.p.text.strip()}" if first_paragraph else "No paragraphs found on the page."
+            source_link_text = f"Source Link: {first_source_link['href']}" if first_source_link else "No source link found on the page."
+            image_src = f"{first_image['src']}" if first_image else None
+
+            return paragraph_text, source_link_text, image_src
+        else:
+            return None, None, None
 
 def download_image(image_url):
     response = requests.get(image_url)
@@ -120,6 +125,6 @@ page_access_token = get_page_access_token(page_id, user_access_token)
 if page_access_token:
     while True:
         post_fb(page_id, page_access_token)
-        time.sleep(1800)  # Wait for 5 minutes (300 seconds)
+        time.sleep(3600)  # Wait for 5 minutes (300 seconds)
 else:
     print("Failed to obtain Page Access Token.")  # Print an error if the token retrieval fails
