@@ -76,6 +76,9 @@ def upload_image_to_facebook(page_id, page_access_token, image_path):
 
 def post_fb(page_id, page_access_token):
     paragraph_text, source_link_text, image_src = scrape_paragraphs()
+    print(paragraph_text)
+    print(source_link_text)
+    print("-------------------")
     if paragraph_text and image_src:
         image_path = download_image(image_src)
         if image_path:
