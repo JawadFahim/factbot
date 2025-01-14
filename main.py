@@ -123,8 +123,8 @@ page_access_token = get_page_access_token(page_id, user_access_token)
 
 # If the Page Access Token was successfully retrieved, publish the post
 if page_access_token:
-    while True:
-        post_fb(page_id, page_access_token)
-        time.sleep(3600)  # Wait for 5 minutes (300 seconds)
+    # while True:
+    post_fb(page_id, page_access_token)
+        # time.sleep(3600)  # Wait for 5 minutes (300 seconds)
 else:
     print("Failed to obtain Page Access Token.")  # Print an error if the token retrieval fails
