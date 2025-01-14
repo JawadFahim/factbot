@@ -30,8 +30,9 @@ def scrape_paragraphs():
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
 
-    while True:
+    try:
         response = requests.get(url, headers=headers, proxies={})
+        print(f"HTTP Status Code: {response.status_code}")
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -39,7 +40,7 @@ def scrape_paragraphs():
             first_paragraph = soup.find('span', class_='td-sml-description')
             if first_paragraph and any(word in first_paragraph.p.text.lower() for word in ['hitler', 'murder','sex','rape','nazi','reich','gun','shoot','shooting']):
                 print("Found 'hitler' or 'murder' in the paragraph, retrying...")
-                continue  # Retry the scraping process
+                return None, None, None  # Retry the scraping process
 
             first_source_link = soup.find('a', class_='button source')
             first_image = soup.find('div', class_='td-item').find('img')
@@ -50,7 +51,12 @@ def scrape_paragraphs():
 
             return paragraph_text, source_link_text, image_src
         else:
+            print("Failed to fetch page.")
             return None, None, None
+        
+    except Exception as e:
+        print("Exception during scraping:", e)
+        return None, None, None
 
 def download_image(image_url):
     response = requests.get(image_url)
